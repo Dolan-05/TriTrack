@@ -53,6 +53,15 @@ Monday-Sunday
 -Run
     -Elevation
 
+#nutrition
+-Kcals
+-Protien
+-Carbs
+-Fats
+-Sodium
+-Water
+-Timing
+
 
 #account information
 -email
