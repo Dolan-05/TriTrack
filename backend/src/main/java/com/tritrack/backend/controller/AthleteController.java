@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/athletes")
 public class AthleteController {
@@ -16,14 +18,14 @@ public class AthleteController {
     public AthleteController(AthleteService athleteService){
         this.athleteService = athleteService;
     }
-    @GetMapping
-    public String Test(){
-        return "TriTrack API is running and running well!";
 
-    }
     @PostMapping
     public Athlete createAthlete(@RequestBody Athlete athlete){
         return athleteService.saveAthlete(athlete);
+    }
+    @GetMapping
+    public List<Athlete> getAthletes(){
+        return athleteService.getAllAthletes();
     }
 
 }
