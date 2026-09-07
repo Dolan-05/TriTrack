@@ -1,12 +1,11 @@
 package com.tritrack.backend.controller;
 
+import com.tritrack.backend.dto.AthleteResponse;
+import jakarta.validation.Valid;
 import com.tritrack.backend.athlete.Athlete;
+import com.tritrack.backend.dto.RegisterAthleteRequest;
 import com.tritrack.backend.service.AthleteService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,12 +19,16 @@ public class AthleteController {
     }
 
     @PostMapping
-    public Athlete createAthlete(@RequestBody Athlete athlete){
-        return athleteService.saveAthlete(athlete);
+    public AthleteResponse createAthlete(@Valid @RequestBody RegisterAthleteRequest request){
+        return athleteService.saveAthlete(request);
     }
     @GetMapping
     public List<Athlete> getAthletes(){
         return athleteService.getAllAthletes();
+    }
+    @GetMapping("/{id}")
+    public Athlete getAthleteById(@PathVariable Long id){
+        return athleteService.getAthleteById(id);
     }
 
 }
