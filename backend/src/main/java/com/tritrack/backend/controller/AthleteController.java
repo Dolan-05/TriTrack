@@ -1,10 +1,12 @@
 package com.tritrack.backend.controller;
 
 import com.tritrack.backend.dto.AthleteResponse;
+import com.tritrack.backend.dto.LoginRequest;
 import jakarta.validation.Valid;
 import com.tritrack.backend.athlete.Athlete;
 import com.tritrack.backend.dto.RegisterAthleteRequest;
 import com.tritrack.backend.service.AthleteService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,12 +25,18 @@ public class AthleteController {
         return athleteService.saveAthlete(request);
     }
     @GetMapping
-    public List<Athlete> getAthletes(){
+    public List<AthleteResponse> getAthletes(){
         return athleteService.getAllAthletes();
     }
     @GetMapping("/{id}")
-    public Athlete getAthleteById(@PathVariable Long id){
+    public AthleteResponse getAthleteById(@PathVariable Long id){
         return athleteService.getAthleteById(id);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody @Valid LoginRequest request) {
+        athleteService.login(request);
+        return ResponseEntity.ok("Login successful");
     }
 
 }

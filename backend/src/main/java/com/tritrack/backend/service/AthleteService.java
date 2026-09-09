@@ -2,11 +2,16 @@ package com.tritrack.backend.service;
 
 import com.tritrack.backend.athlete.Athlete;
 import com.tritrack.backend.dto.AthleteResponse;
+import com.tritrack.backend.dto.LoginRequest;
 import com.tritrack.backend.dto.RegisterAthleteRequest;
+import com.tritrack.backend.exception.InvalidCredentialsException;
 import com.tritrack.backend.repository.AthleteRepository;
 import com.tritrack.backend.exception.AthleteNotFoundException;
 import com.tritrack.backend.exception.EmailAlreadyExistsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,8 +21,9 @@ public class AthleteService {
     private final AthleteRepository athleteRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AthleteService(AthleteRepository athleteRepository) {
+    public AthleteService(AthleteRepository athleteRepository, PasswordEncoder passwordEncoder) {
         this.athleteRepository = athleteRepository;
+        this.passwordEncoder = passwordEncoder;
     }
     public AthleteResponse saveAthlete(RegisterAthleteRequest request){
         Optional<Athlete> existingAthlete =
@@ -31,6 +37,7 @@ public class AthleteService {
         athlete.setFirstName(request.getFirstName());
         athlete.setLastName(request.getLastName());
         athlete.setEmail(request.getEmail());
+        athlete.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
         Athlete savedAthlete = athleteRepository.save(athlete);
 
@@ -46,18 +53,58 @@ public class AthleteService {
         return response;
     }
 
-    public Athlete getAthleteById(Long id){
+    public AthleteResponse getAthleteById(Long id){
         Optional<Athlete> existingAthlete=
                 athleteRepository.findById(id);
 
         if(existingAthlete.isEmpty()) {
             throw new AthleteNotFoundException("Athlete not found");
         }
-        return existingAthlete.get();
+        Athlete athlete = existingAthlete.get();
+
+        AthleteResponse response = new AthleteResponse();
+
+        response.setId(athlete.getId());
+        response.setFirstName(athlete.getFirstName());
+        response.setLastName(athlete.getLastName());
+        response.setEmail(athlete.getEmail());
+        response.setHeightCm(athlete.getHeightCm());
+        response.setWeightKg(athlete.getWeightKg());
+
+        return response;
 
     }
 
-    public List<Athlete> getAllAthletes(){
-        return athleteRepository.findAll();
+    public void login(LoginRequest request){
+        Optional<Athlete> existingAthlete =
+                athleteRepository.findByEmail(request.getEmail());
+
+        if(existingAthlete.isEmpty()) {
+            throw new InvalidCredentialsException("Invalid email or password");
+        }
+        Athlete athlete = existingAthlete.get();
+        if(!passwordEncoder.matches(request.getPassword(), athlete.getPasswordHash())){
+            throw new InvalidCredentialsException("Invalid email or password");
+        }
+
+    }
+
+    public List<AthleteResponse> getAllAthletes(){
+        List<Athlete> athletes = athleteRepository.findAll();
+        List<AthleteResponse> responses = new ArrayList<>();
+
+        for(Athlete athlete : athletes){
+            AthleteResponse response = new AthleteResponse();
+
+            response.setId(athlete.getId());
+            response.setFirstName(athlete.getFirstName());
+            response.setLastName(athlete.getLastName());
+            response.setEmail(athlete.getEmail());
+            response.setHeightCm(athlete.getHeightCm());
+            response.setWeightKg(athlete.getWeightKg());
+
+            responses.add(response);
+        }
+        return responses;
     }
 }
